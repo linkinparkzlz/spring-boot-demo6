@@ -1,6 +1,7 @@
 package com.example.springbootdemo6;
 
 import com.example.springbootdemo6.domain.User;
+import com.example.springbootdemo6.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -22,6 +23,9 @@ public class JdbcController {
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    private UserService userService;
 
     @RequestMapping("/user/get")
     public Map<String, Object> getUser(@RequestParam(value = "id", defaultValue = "1") String id) {
@@ -81,7 +85,7 @@ public class JdbcController {
             }
         });
 
-        data.put("success", result);
+        data.put("success", userService.save(user));
 
         return data;
 

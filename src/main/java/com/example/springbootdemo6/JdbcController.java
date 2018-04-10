@@ -1,15 +1,14 @@
 package com.example.springbootdemo6;
 
+import com.example.springbootdemo6.domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCallback;
+import org.springframework.web.bind.annotation.*;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,6 +18,10 @@ public class JdbcController {
 
     @Autowired
     private DataSource dataSource;
+
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @RequestMapping("/user/get")
     public Map<String, Object> getUser(@RequestParam(value = "id", defaultValue = "1") String id) {
@@ -52,6 +55,33 @@ public class JdbcController {
                 e.printStackTrace();
             }
         }
+
+        return data;
+
+    }
+
+
+    @RequestMapping("/user/add")
+    @ResponseBody
+    public Map<String, Object> getUser(@RequestBody User user) {
+
+
+        Map<String, Object> data = new HashMap<>();
+
+        Boolean result = jdbcTemplate.execute("", new PreparedStatementCallback<Boolean>() {
+
+            @Override
+            public Boolean doInPreparedStatement(PreparedStatement preparedStatement) throws SQLException, DataAccessException {
+
+                preparedStatement.setString(1, user.getName());
+
+                preparedStatement.setInt(2, user.getAge());
+
+                return preparedStatement.executeUpdate() > 0;
+            }
+        });
+
+        data.put("success", result);
 
         return data;
 
